@@ -34,44 +34,36 @@ value=$2
 }
 
 key_base64=$(aws kms decrypt --ciphertext-blob fileb://<(echo -n "$encrypted_key_base64" | base64 --decode) --query Plaintext --output text)
-# key_base64=$($(dirname -- "$0")/kms-decrypt "$encrypted_key_base64")
-key=$(echo -n "$key_base64" | base64 --decode)
-key_hex=$(echo -n "$key" | xxd -p | tr -d '\n')
+key_hex=$(echo -n "$key_base64" | base64 --decode | xxd -p | tr -d '\n')
 
-iv=$(head -c16 /dev/urandom)
-iv_base64=$(echo -n "$iv" | base64)
-iv_hex=$(echo -n "$iv" | xxd -p | tr -d '\n')
+iv_base64=$(head -c16 /dev/urandom | base64)
+iv_hex=$(echo -n "$iv_base64" | base64 --decode | xxd -p | tr -d '\n')
 
 [ "$DEBUG" == "true" ] && {
   (>&2 echo 'key:');
-  (>&2 echo bin: "$key_base64");
-  (>&2 echo base64: "$key_hex");
+  (>&2 echo base64: "$key_base64");
+  (>&2 echo hex: "$key_hex");
   (>&2 echo);
 
   (>&2 echo 'iv:');
-  (>&2 echo bin: "$iv");
   (>&2 echo base64: "$iv_base64");
   (>&2 echo hex: "$iv_hex");
   (>&2 echo);
 }
 
-encrypted_value=$(echo -n "$value" | openssl enc -aes-256-cbc -iv "$iv_hex" -K "$key_hex")
-encrypted_value_base64=$(echo -n "$encrypted_value" | base64)
-encrypted_value_hex=$(echo -n "$encrypted_value" | xxd -p | tr -d '\n')
+encrypted_value_base64=$(echo -n "$value" | openssl enc -aes-256-cbc -iv "$iv_hex" -K "$key_hex" | base64)
+encrypted_value_hex=$(echo -n "$encrypted_value_base64" | base64 --decode | xxd -p | tr -d '\n')
 
-final="$iv$encrypted_value"
-final_base64=$(echo -n "$final" | base64)
-final_hex=$(echo -n "$final" | xxd -p | tr -d '\n')
+final_hex="$iv_hex$encrypted_value_hex"
+final_base64=$(echo -n "$final_hex" | xxd -ps -r | base64)
 
 [ "$DEBUG" == "true" ] && {
   (>&2 echo 'encrypted value:');
-  (>&2 echo bin: "$encrypted_value");
   (>&2 echo base64: "$encrypted_value_base64");
   (>&2 echo hex: "$encrypted_value_hex");
   (>&2 echo);
 
   (>&2 echo 'final:');
-  (>&2 echo bin: "$final");
   (>&2 echo base64: "$final_base64");
   (>&2 echo hex: "$final_hex");
   (>&2 echo);
