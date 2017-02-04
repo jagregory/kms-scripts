@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+alias=$1
+
+aws kms generate-data-key-without-plaintext \
+  --key-id $alias \
+  --key-spec AES_256 \
+  --query CiphertextBlob \
+  --output text

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+hash aws &>/dev/null || {
+  (>&2 echo 'Error: AWS CLI not found on PATH');
+  exit 1;
+}
+
+function usage {
+  echo 'Usage:' $(basename "$0") '<secret>'
+  echo '   or: echo <secret> |' $(basename "$0")
+}
+
+secret_base64=$1
+
+# if no <secret> is passed as an argument, try getting it from stdin if we're
+# not interactive
+[ "$secret_base64" == "" ] && [ ! -t 0 ] && {
+  secret_base64=$(cat -);
+}
+
+[ "$secret_base64" == "" ] && {
+  (>&2 echo 'Error: Missing Secret');
+  echo;
+  usage;
+  exit 1;
+}
+
+aws kms decrypt --ciphertext-blob fileb://<(echo -n $secret_base64 | base64 --decode) --query Plaintext --output text

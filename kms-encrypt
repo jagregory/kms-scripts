@@ -1,0 +1,37 @@
+#!/bin/bash -e
+
+hash aws &>/dev/null || {
+  (>&2 echo 'Error: AWS CLI not found on PATH');
+  exit 1;
+}
+
+function usage {
+  echo 'Usage:' $(basename "$0") '<alias> <plaintext>'
+  echo '   or: echo <alias> <plaintext> |' $(basename "$0")
+}
+
+alias=$1
+
+[ "$alias" == "" ] && {
+  (>&2 echo 'Error: Missing KMS Key Alias');
+  echo;
+  usage;
+  exit 1;
+}
+
+plaintext=${2:-$(cat -)}
+
+# if no <plaintext> is passed as an argument, try getting it from stdin if we're
+# not interactive
+[ "$plaintext" == "" ] && [ ! -t 0 ] && {
+  plaintext=$(cat -);
+}
+
+[ "$plaintext" == "" ] && {
+  (>&2 echo 'Error: Missing Plaintext');
+  echo;
+  usage;
+  exit 1;
+}
+
+aws kms encrypt --key-id $alias --plaintext $plaintext --query CiphertextBlob --output text

@@ -1,0 +1,74 @@
+#!/bin/bash -e
+
+hash aws &>/dev/null || {
+  (>&2 echo 'Error: AWS CLI not found on PATH');
+  exit 1;
+}
+
+function usage {
+  echo 'Usage:' $(basename "$0") '<encrypted-key> <secret>'
+  echo '   or: echo <secret> |' $(basename "$0") '<encrypted-key>'
+}
+
+encrypted_key_base64=$1
+final_base64=$2
+
+[ "$encrypted_key_base64" == "" ] && {
+  (>&2 echo 'Error: Missing Encrypted Key');
+  echo;
+  usage;
+  exit 1;
+}
+
+# if no <secret> is passed as an argument, try getting it from stdin if we're
+# not interactive
+[ "$final_base64" == "" ] && [ ! -t 0 ] && {
+  final_base64=$(cat -);
+}
+
+[ "$final_base64" == "" ] && {
+  (>&2 echo 'Error: Missing Secret');
+  echo;
+  usage;
+  exit 1;
+}
+
+key_base64=$(aws kms decrypt --ciphertext-blob fileb://<(echo -n $encrypted_key_base64 | base64 --decode) --query Plaintext --output text)
+# key_base64=$($(dirname -- "$0")/kms-decrypt "$encrypted_key_base64")
+key=$(echo -n $key_base64 | base64 --decode)
+key_hex=$(echo -n $key | xxd -p -c 256)
+
+final=$(echo -n $final_base64 | base64 --decode)
+final_hex=$(echo -n $final | xxd -p -c 256)
+
+iv=$(echo -n $final | head -c16)
+iv_base64=$(echo -n $iv | base64)
+iv_hex=$(echo -n $iv | xxd -p -c 256)
+
+encrypted_value=$(echo -n $final | tail -c+17)
+encrypted_value_base64=$(echo -n $encrypted_value | base64)
+encrypted_value_hex=$(echo -n $encrypted_value | xxd -p -c 256)
+
+[ "$DEBUG" == "true" ] && {
+  echo 'key:';
+  echo $key_base64 | xargs echo 'base64:';
+  echo $key_hex | xargs echo 'hex:';
+  echo;
+
+  echo 'final:';
+  echo $final_base64 | xargs echo 'base64:';
+  echo $final_hex | xargs echo 'hex:';
+  echo;
+
+  echo 'iv:';
+  echo $iv_base64 | xargs echo 'base64:';
+  echo $iv_hex | xargs echo 'hex:';
+  echo;
+
+  echo 'encrypted_value:';
+  echo $encrypted_value_base64 | xargs echo 'base64:';
+  echo $encrypted_value_hex | xargs echo 'hex:';
+  echo;
+}
+
+echo -n $encrypted_value | openssl enc -aes-256-cbc -d -iv $iv_hex -K $key_hex
