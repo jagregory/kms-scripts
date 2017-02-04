@@ -34,24 +34,24 @@ function testKmsEncryption() {
 
   echo
   echo 'Encrypt with argument, decrypt with stdin'
-  local output=$(./kms-encrypt "$key_alias" "$secret" | ./kms-decrypt | base64 --decode)
+  local output=$(./kms-encrypt -a "$key_alias" -p "$secret" | ./kms-decrypt | base64 --decode)
   assert $output $secret
 
   echo
   echo 'Encrypt with argument, decrypt with argument'
-  local encrypted=$(./kms-encrypt "$key_alias" "$secret")
-  local output=$(./kms-decrypt "$encrypted" | base64 --decode)
+  local encrypted=$(./kms-encrypt -a "$key_alias" -p "$secret")
+  local output=$(./kms-decrypt -s "$encrypted" | base64 --decode)
   assert $output $secret
 
   echo
   echo 'Encrypt with stdin, decrypt with stdin'
-  local output=$(echo -n "$secret" | ./kms-encrypt "$key_alias" | ./kms-decrypt | base64 --decode)
+  local output=$(echo -n "$secret" | ./kms-encrypt -a "$key_alias" | ./kms-decrypt | base64 --decode)
   assert $output $secret
 
   echo
   echo 'Encrypt with stdin, decrypt with argument'
-  local encrypted=$(echo -n "$secret" | ./kms-encrypt "$key_alias")
-  local output=$(./kms-decrypt "$encrypted" | base64 --decode)
+  local encrypted=$(echo -n "$secret" | ./kms-encrypt -a "$key_alias")
+  local output=$(./kms-decrypt -s "$encrypted" | base64 --decode)
   assert $output $secret
 }
 
@@ -70,24 +70,24 @@ function testEnvelopeEncryption() {
 
   echo
   echo 'Encrypt with argument, decrypt with stdin'
-  local output=$(./kms-envelopeencrypt "$data_key" "$secret" | ./kms-envelopedecrypt "$data_key")
+  local output=$(./kms-envelopeencrypt -k "$data_key" -p "$secret" | ./kms-envelopedecrypt -k "$data_key")
   assert "$output" "$secret"
 
   echo
   echo 'Encrypt with argument, decrypt with argument'
-  local encrypted=$(./kms-envelopeencrypt "$data_key" "$secret")
-  local output=$(./kms-envelopedecrypt "$data_key" "$encrypted")
+  local encrypted=$(./kms-envelopeencrypt -k "$data_key" -p "$secret")
+  local output=$(./kms-envelopedecrypt -k "$data_key" -s "$encrypted")
   assert "$output" "$secret"
 
   echo
   echo 'Encrypt with stdin, decrypt with stdin'
-  local output=$(echo -n "$secret" | ./kms-envelopeencrypt "$data_key" | ./kms-envelopedecrypt "$data_key")
+  local output=$(echo -n "$secret" | ./kms-envelopeencrypt -k "$data_key" | ./kms-envelopedecrypt -k "$data_key")
   assert "$output" "$secret"
 
   echo
   echo 'Encrypt with stdin, decrypt with argument'
-  local encrypted=$(echo -n "$secret" | ./kms-envelopeencrypt "$data_key")
-  local output=$(./kms-envelopedecrypt "$data_key" "$encrypted")
+  local encrypted=$(echo -n "$secret" | ./kms-envelopeencrypt -k "$data_key")
+  local output=$(./kms-envelopedecrypt -k "$data_key" -s "$encrypted")
   assert "$output" "$secret"
 }
 

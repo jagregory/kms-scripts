@@ -6,11 +6,31 @@ hash aws &>/dev/null || {
 }
 
 function usage {
-  echo 'Usage:' $(basename "$0") '<alias> <plaintext>'
-  echo '   or: echo <alias> <plaintext> |' $(basename "$0")
+  echo 'Usage:' $(basename "$0") '-a <alias> -p <plaintext>'
+  echo '   or: echo <plaintext> |' $(basename "$0") '-a <alias>'
 }
 
-alias=$1
+while getopts a:p:h FLAG; do
+  case $FLAG in
+    a)
+      alias=$OPTARG
+      ;;
+    p)
+      plaintext=$OPTARG
+      ;;
+    h)
+      usage
+      exit
+      ;;
+    ?)
+      echo
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+shift "$((OPTIND - 1))"
 
 [ "$alias" == "" ] && {
   (>&2 echo 'Error: Missing KMS Key Alias');
@@ -18,8 +38,6 @@ alias=$1
   usage;
   exit 1;
 }
-
-plaintext=${2:-$(cat -)}
 
 # if no <plaintext> is passed as an argument, try getting it from stdin if we're
 # not interactive

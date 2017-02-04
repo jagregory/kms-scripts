@@ -6,11 +6,28 @@ hash aws &>/dev/null || {
 }
 
 function usage {
-  echo 'Usage:' $(basename "$0") '<secret>'
+  echo 'Usage:' $(basename "$0") '-s <secret>'
   echo '   or: echo <secret> |' $(basename "$0")
 }
 
-secret_base64=$1
+while getopts s:h FLAG; do
+  case $FLAG in
+    s)
+      secret_base64=$OPTARG
+      ;;
+    h)
+      usage
+      exit
+      ;;
+    ?)
+      echo
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+shift "$((OPTIND - 1))"
 
 # if no <secret> is passed as an argument, try getting it from stdin if we're
 # not interactive

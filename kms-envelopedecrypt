@@ -6,12 +6,31 @@ hash aws &>/dev/null || {
 }
 
 function usage {
-  echo 'Usage:' $(basename "$0") '<encrypted-key> <secret>'
-  echo '   or: echo <secret> |' $(basename "$0") '<encrypted-key>'
+  echo 'Usage:' $(basename "$0") '-k <encrypted-key> -s <secret>'
+  echo '   or: echo <secret> |' $(basename "$0") '-k <encrypted-key>'
 }
 
-encrypted_key_base64=$1
-final_base64=$2
+while getopts k:s:h FLAG; do
+  case $FLAG in
+    k)
+      encrypted_key_base64=$OPTARG
+      ;;
+    s)
+      final_base64=$OPTARG
+      ;;
+    h)
+      usage
+      exit
+      ;;
+    ?)
+      echo
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+shift "$((OPTIND - 1))"
 
 [ "$encrypted_key_base64" == "" ] && {
   (>&2 echo 'Error: Missing Encrypted Key');
