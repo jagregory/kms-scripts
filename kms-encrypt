@@ -34,4 +34,4 @@ plaintext=${2:-$(cat -)}
   exit 1;
 }
 
-aws kms encrypt --key-id $alias --plaintext $plaintext --query CiphertextBlob --output text
+aws kms encrypt --key-id "$alias" --plaintext "$plaintext" --query CiphertextBlob --output text

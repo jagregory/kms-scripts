@@ -25,4 +25,4 @@ secret_base64=$1
   exit 1;
 }
 
-aws kms decrypt --ciphertext-blob fileb://<(echo -n $secret_base64 | base64 --decode) --query Plaintext --output text
+aws kms decrypt --ciphertext-blob fileb://<(echo -n "$secret_base64" | base64 --decode) --query Plaintext --output text
