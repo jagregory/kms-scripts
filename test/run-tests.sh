@@ -90,13 +90,13 @@ short="y=rCh\""
 medium="y=rCh\"ni|Rt<0bp)9K^?Ax%05vugpyIc|"
 long="y=rCh\"ni|Rt<0bp)9K^?Ax%05vugpyIc|6ayWM8ju4KG'Cj9dnCy+2?Xl\$4*0*lE1p;oHkC\rm^2GD3@|rMf_?/0p/sK'/|!(1+P7iBlaV3uUq[J]vX@J$:U@Y3uk',7dZ~u:3e6pT(*W[+79!2{FbgQH4fx(+rRcT[YSM#[em^|Yn>%:t*SdU3!*~1hAqBuRT_CQ]XZIs-<X7\`PbS:\`Wr\$d7b$\`5\"Gjc9/i1hcmLAHY#1k%s7ziH\sT}H<=Z|9!/70JE^+%?Wi)^ME8'HoiA/feHRHxThy&\IXX/ClAw4|mx&Q:lrKq6]:L>~}u>?kV@qT^UXM:o\$B?>'w-s}J1BO;+3\W9l~K[Pm)~zncjF[-(Cx%*\`_b@Xv4C}ErfE>/iTraqk5|]yXUG8&it"
 
-echo -e '\033[4mKMS Master Encryption\033[0m'
-echo
-testKmsEncryption 'Short plaintext' $short
-echo
-testKmsEncryption 'Medium length plaintext' $short
-echo
-testKmsEncryption 'Long plaintext' $long
+# echo -e '\033[4mKMS Master Encryption\033[0m'
+# echo
+# testKmsEncryption 'Short plaintext' $short
+# echo
+# testKmsEncryption 'Medium length plaintext' $short
+# echo
+# testKmsEncryption 'Long plaintext' $long
 
 echo
 echo -e '\033[4mKMS Envelope Encryption\033[0m'

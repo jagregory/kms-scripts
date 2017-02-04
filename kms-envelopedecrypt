@@ -50,25 +50,28 @@ encrypted_value_base64=$(echo -n "$encrypted_value" | base64)
 encrypted_value_hex=$(echo -n "$encrypted_value" | xxd -p | tr -d '\n')
 
 [ "$DEBUG" == "true" ] && {
-  echo 'key:';
-  echo "$key_base64" | xargs echo 'base64:';
-  echo "$key_hex" | xargs echo 'hex:';
-  echo;
+  (>&2 echo 'key:');
+  (>&2 echo base64: "$key_base64");
+  (>&2 echo hex: "$key_hex");
+  (>&2 echo);
 
-  echo 'final:';
-  echo "$final_base64" | xargs echo 'base64:';
-  echo "$final_hex" | xargs echo 'hex:';
-  echo;
+  (>&2 echo 'final:');
+  (>&2 echo bin: "$final");
+  (>&2 echo base64: "$final_base64");
+  (>&2 echo hex: "$final_hex");
+  (>&2 echo);
 
-  echo 'iv:';
-  echo "$iv_base64" | xargs echo 'base64:';
-  echo "$iv_hex" | xargs echo 'hex:';
-  echo;
+  (>&2 echo 'iv:');
+  (>&2 echo bin: "$iv");
+  (>&2 echo base64: "$iv_base64");
+  (>&2 echo hex: "$iv_hex");
+  (>&2 echo);
 
-  echo 'encrypted_value:';
-  echo "$encrypted_value_base64" | xargs echo 'base64:';
-  echo "$encrypted_value_hex" | xargs echo 'hex:';
-  echo;
+  (>&2 echo 'encrypted_value:');
+  (>&2 echo bin: "$encrypted_value");
+  (>&2 echo base64: "$encrypted_value_base64");
+  (>&2 echo hex: "$encrypted_value_hex");
+  (>&2 echo);
 }
 
 echo -n "$encrypted_value" | openssl enc -aes-256-cbc -d -iv "$iv_hex" -K "$key_hex"
