@@ -36,18 +36,18 @@ final_base64=$2
 key_base64=$(aws kms decrypt --ciphertext-blob fileb://<(echo -n "$encrypted_key_base64" | base64 --decode) --query Plaintext --output text)
 # key_base64=$($(dirname -- "$0")/kms-decrypt "$encrypted_key_base64")
 key=$(echo -n "$key_base64" | base64 --decode)
-key_hex=$(echo -n "$key" | xxd -p -c 256)
+key_hex=$(echo -n "$key" | xxd -p | tr -d '\n')
 
 final=$(echo -n "$final_base64" | base64 --decode)
-final_hex=$(echo -n "$final" | xxd -p -c 256)
+final_hex=$(echo -n "$final" | xxd -p | tr -d '\n')
 
 iv=$(echo -n "$final" | head -c16)
 iv_base64=$(echo -n "$iv" | base64)
-iv_hex=$(echo -n "$iv" | xxd -p -c 256)
+iv_hex=$(echo -n "$iv" | xxd -p | tr -d '\n')
 
 encrypted_value=$(echo -n "$final" | tail -c+17)
 encrypted_value_base64=$(echo -n "$encrypted_value" | base64)
-encrypted_value_hex=$(echo -n "$encrypted_value" | xxd -p -c 256)
+encrypted_value_hex=$(echo -n "$encrypted_value" | xxd -p | tr -d '\n')
 
 [ "$DEBUG" == "true" ] && {
   echo 'key:';
