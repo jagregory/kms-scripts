@@ -10,13 +10,16 @@ function usage {
   echo '   or: echo <secret> |' $(basename "$0") '-k <encrypted-key>'
 }
 
-while getopts k:s:h FLAG; do
+while getopts k:s:hv FLAG; do
   case $FLAG in
     k)
       encrypted_key_base64=$OPTARG
       ;;
     s)
       final_base64=$OPTARG
+      ;;
+    v)
+      DEBUG=true
       ;;
     h)
       usage
