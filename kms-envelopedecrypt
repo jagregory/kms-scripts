@@ -10,10 +10,13 @@ function usage {
   echo '   or: echo <secret> |' $(basename "$0") '-k <encrypted-key>'
 }
 
-while getopts k:s:hv FLAG; do
+while getopts k:K:s:hv FLAG; do
   case $FLAG in
     k)
       encrypted_key_base64=$OPTARG
+      ;;
+    K)
+      key_base64=$OPTARG
       ;;
     s)
       final_base64=$OPTARG
@@ -35,8 +38,13 @@ done
 
 shift "$((OPTIND - 1))"
 
-[ "$encrypted_key_base64" == "" ] && {
-  (>&2 echo 'Error: Missing Encrypted Key');
+if [ -n "$encrypted_key_base64" ]; then
+  [ "$DEBUG" == "true" ] && (>&2 echo 'Decrypting Data Key')
+  key_base64=$(aws kms decrypt --ciphertext-blob fileb://<(echo -n "$encrypted_key_base64" | base64 --decode) --query Plaintext --output text)
+fi
+
+[ "$key_base64" == "" ] && {
+  (>&2 echo 'Error: Missing Key');
   echo;
   usage;
   exit 1;
@@ -55,7 +63,6 @@ shift "$((OPTIND - 1))"
   exit 1;
 }
 
-key_base64=$(aws kms decrypt --ciphertext-blob fileb://<(echo -n "$encrypted_key_base64" | base64 --decode) --query Plaintext --output text)
 key_hex=$(echo -n "$key_base64" | base64 --decode | xxd -p | tr -d '\n')
 
 final_hex=$(echo -n "$final_base64" | base64 --decode | xxd -p | tr -d '\n')
